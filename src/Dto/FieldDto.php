@@ -57,6 +57,9 @@ final class FieldDto implements GroupableDtoInterface
     private KeyValueStore $displayedOn;
     private array $htmlAttributes = [];
     private ?GroupableDtoInterface $parent = null;
+    /**
+     * @var array<int, GroupableDtoInterface>
+     */
     private array $children = [];
 
     public function __construct()
@@ -500,36 +503,47 @@ final class FieldDto implements GroupableDtoInterface
         return $this;
     }
 
-    public function getChildren(): array
-    {
-        return $this->children;
-    }
-
+    /**
+     * @param array<int, GroupableDtoInterface> $children
+     * @return void
+     */
     public function addChildren(array $children): void
     {
         $this->children = [
             ...$this->children,
             ...$children,
         ];
+
+        $this->propagateParent();
     }
 
-    public function getFields(): ?FieldCollection
+    public function getChildren(): ?FieldCollection
     {
         return FieldCollection::new($this->children);
     }
 
     public function getFqcn(): string
     {
-        return $this->parent->getFqcn() ?? '';
+        return $this->parent?->getFqcn() ?? '';
     }
 
     public function setParent(GroupableDtoInterface $parent): void
     {
+        $this->propagateParent();
         $this->parent = $parent;
     }
 
     public function getParent(): ?GroupableDtoInterface
     {
         return $this->parent;
+    }
+
+    private function propagateParent(): void
+    {
+        foreach ($this->children as $child) {
+            if ($child instanceof GroupableDtoInterface) {
+                $child->setParent($this);
+            }
+        }
     }
 }

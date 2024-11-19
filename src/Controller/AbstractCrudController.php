@@ -181,7 +181,7 @@ abstract class AbstractCrudController extends AbstractController implements Crud
         }
 
         $this->container->get(EntityFactory::class)->processFields($context->getEntity(), FieldCollection::new($this->configureFields(Crud::PAGE_DETAIL)));
-        $context->getCrud()->setFieldAssets($this->getFieldAssets($context->getEntity()->getFields()));
+        $context->getCrud()->setFieldAssets($this->getFieldAssets($context->getEntity()->getChildren()));
         $this->container->get(EntityFactory::class)->processActions($context->getEntity(), $context->getCrud()->getActionsConfig());
 
         $responseParameters = $this->configureResponseParameters(KeyValueStore::new([
@@ -216,7 +216,7 @@ abstract class AbstractCrudController extends AbstractController implements Crud
         }
 
         $this->container->get(EntityFactory::class)->processFields($context->getEntity(), FieldCollection::new($this->configureFields(Crud::PAGE_EDIT)));
-        $context->getCrud()->setFieldAssets($this->getFieldAssets($context->getEntity()->getFields()));
+        $context->getCrud()->setFieldAssets($this->getFieldAssets($context->getEntity()->getChildren()));
         $this->container->get(EntityFactory::class)->processActions($context->getEntity(), $context->getCrud()->getActionsConfig());
         $entityInstance = $context->getEntity()->getInstance();
 
@@ -299,7 +299,7 @@ abstract class AbstractCrudController extends AbstractController implements Crud
 
         $context->getEntity()->setInstance($this->createEntity($context->getEntity()->getFqcn()));
         $this->container->get(EntityFactory::class)->processFields($context->getEntity(), FieldCollection::new($this->configureFields(Crud::PAGE_NEW)));
-        $context->getCrud()->setFieldAssets($this->getFieldAssets($context->getEntity()->getFields()));
+        $context->getCrud()->setFieldAssets($this->getFieldAssets($context->getEntity()->getChildren()));
         $this->container->get(EntityFactory::class)->processActions($context->getEntity(), $context->getCrud()->getActionsConfig());
 
         $newForm = $this->createNewForm($context->getEntity(), $context->getCrud()->getNewFormOptions(), $context);
@@ -484,7 +484,7 @@ abstract class AbstractCrudController extends AbstractController implements Crud
     {
         $fields = FieldCollection::new($this->configureFields(Crud::PAGE_INDEX));
         $this->container->get(EntityFactory::class)->processFields($context->getEntity(), $fields);
-        $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $context->getEntity()->getFields(), $context->getEntity());
+        $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $context->getEntity()->getChildren(), $context->getEntity());
 
         /** @var FormInterface&FiltersFormType $filtersForm */
         $filtersForm = $this->container->get(FormFactory::class)->createFiltersForm($filters, $context->getRequest());
@@ -560,7 +560,7 @@ abstract class AbstractCrudController extends AbstractController implements Crud
 
     protected function ajaxEdit(EntityDto $entityDto, ?string $propertyName, bool $newValue): AfterCrudActionEvent
     {
-        $field = $entityDto->getFields()->getByProperty($propertyName);
+        $field = $entityDto->getChildren()->getByProperty($propertyName);
         if (null === $field || true === $field->getFormTypeOption('disabled')) {
             throw new AccessDeniedException(sprintf('The field "%s" does not exist or it\'s configured as disabled, so it can\'t be modified.', $propertyName));
         }

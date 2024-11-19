@@ -6,6 +6,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FieldLayoutDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\GroupableDtoInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\Layout\EaFormColumnCloseType;
@@ -307,12 +308,19 @@ final class FormLayoutFactory
         return FormField::addFieldset()->getAsDto();
     }
 
-    private function createFieldsetCloseField(): FieldDto
+    private function createFieldsetCloseField(?GroupableDtoInterface $parent = null): FieldDto
     {
-        return Field::new(sprintf('ea_form_fieldset_close_%s', Ulid::generate()))
+        $dto = Field::new(sprintf('ea_form_fieldset_close_%s', Ulid::generate()))
             ->setFormType(EaFormFieldsetCloseType::class)
             ->setFormTypeOptions(['mapped' => false, 'required' => false])
-            ->getAsDto();
+            ->getAsDto()
+            ;
+
+        if (null !== $parent) {
+            $dto->setParent($parent);
+        }
+
+        return $dto;
     }
 
     private function createTabPaneGroupOpenField(): FieldDto

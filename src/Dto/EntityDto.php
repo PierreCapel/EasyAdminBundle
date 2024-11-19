@@ -28,6 +28,7 @@ final class EntityDto implements GroupableDtoInterface
     private string|Expression|null $permission;
     private ?FieldCollection $fields = null;
     private ?ActionCollection $actions = null;
+    private ?GroupableDtoInterface $parent = null;
 
     public function __construct(string $entityFqcn, ClassMetadata $entityMetadata, string|Expression|null $entityPermission = null, /* ?object */ $entityInstance = null)
     {
@@ -132,6 +133,18 @@ final class EntityDto implements GroupableDtoInterface
 
     public function getFields(): ?FieldCollection
     {
+            trigger_deprecation(
+                'easycorp/easyadmin-bundle',
+                '4.14.5',
+                'The "%s" method is deprecated and it will be removed in 5.0.0 because it\'s been replaced by the method "getChildren()" of the same class.',
+                __METHOD__,
+            );
+
+        return $this->getChildren();
+    }
+
+    public function getChildren(): ?FieldCollection
+    {
         return $this->fields;
     }
 
@@ -148,12 +161,12 @@ final class EntityDto implements GroupableDtoInterface
 
     public function setParent(GroupableDtoInterface $parent): void
     {
-        throw new \LogicException('Not implemented.');
+        $this->parent = $parent;
     }
 
     public function getParent(): ?GroupableDtoInterface
     {
-        return null;
+        return $this->parent;
     }
 
     public function setActions(ActionCollection $actions): void

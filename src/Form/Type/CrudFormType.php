@@ -2,12 +2,10 @@
 
 namespace EasyCorp\Bundle\EasyAdminBundle\Form\Type;
 
-use ArrayObject;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\GroupableDtoInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
-use EasyCorp\Bundle\EasyAdminBundle\Form\DataTransformer\GroupTransformer;
 use EasyCorp\Bundle\EasyAdminBundle\Form\EventListener\FormLayoutSubscriber;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmTypeGuesser;
 use Symfony\Component\Form\AbstractType;
@@ -42,7 +40,7 @@ class CrudFormType extends AbstractType
         $currentFormFieldset = 0;
 
         /** @var FieldDto $fieldDto */
-        foreach ($entityDto->getFields() as $fieldDto) {
+        foreach ($entityDto->getChildren() as $fieldDto) {
             $formFieldOptions = $fieldDto->getFormTypeOptions();
 
             // the names of embedded Doctrine entities contain dots, which are not allowed
@@ -143,6 +141,7 @@ class CrudFormType extends AbstractType
                 'data_class' => static fn (Options $options, $dataClass) => $dataClass ?? $options['entityDto']->getFqcn(),
             ])
             ->setDefined(['entityDto', 'ea_form_fieldset', 'ea_form_tab', 'ea_form_columns'])
+            ->setAllowedTypes('entityDto', [EntityDto::class, FieldDto::class, GroupableDtoInterface::class])
             ->setRequired(['entityDto']);
     }
 

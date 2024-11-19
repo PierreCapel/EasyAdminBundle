@@ -9,7 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
  */
 interface GroupableDtoInterface
 {
-    public function getFields(): ?FieldCollection;
+    public function getChildren(): ?FieldCollection;
 
     public function getFqcn(): string;
 

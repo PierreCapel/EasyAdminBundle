@@ -3,11 +3,13 @@
 namespace EasyCorp\Bundle\EasyAdminBundle\Field;
 
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\GroupableDtoInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\EaFormGroupType;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\EaFormRowType;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\Layout\EaFormColumnOpenType;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\Layout\EaFormFieldsetOpenType;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\Layout\EaFormTabPaneOpenType;
+use Symfony\Component\Form\FormConfigBuilder;
 use Symfony\Component\Uid\Ulid;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
@@ -143,20 +145,41 @@ final class FormField implements FieldInterface
             ->setValue(true);
     }
 
-    public static function addGroup(string $name): self
+    /**
+     * Adds a group with a given form name.
+     *
+     * The form name must comply with the Symfony forms naming rules:
+     * - It can be empty.
+     * - It must start with a letter, digit, or underscore.
+     * - It can contain only the following characters: letters, digits, underscores ("_"), hyphens ("-"), and colons (":").
+     *
+     * @param string $formName The name of the form group.
+     * @return self
+     *
+     * @throws \InvalidArgumentException If the form name is invalid.
+     */
+    public static function addGroup(string $formName): self
     {
+        if (!FormConfigBuilder::isValidName($formName)) {
+            throw new \InvalidArgumentException(sprintf('The form name "%s" is not a valid form name.', $formName));
+        }
+
         $field = new self();
 
         return $field
             ->setFieldFqcn(__CLASS__)
             ->hideOnIndex()
-            ->setProperty('ea_form_group_'.$name)
+            ->setProperty('ea_form_group_'.$formName)
             ->setFormType(EaFormGroupType::class)
             ->addCssClass('field-form_group')
             ->setCustomOption(self::OPTION_GROUP, true)
             ->setValue(true);
     }
 
+    /**
+     * @param array<int, GroupableDtoInterface> $children
+     * @return $this
+     */
     public function addChildren(array $children): self
     {
         $this->dto->addChildren($children);
