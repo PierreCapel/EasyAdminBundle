@@ -2,6 +2,7 @@
 
 namespace EasyCorp\Bundle\EasyAdminBundle\Dto;
 
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\EaFormFieldsetType;
@@ -23,7 +24,7 @@ use Symfony\Contracts\Translation\TranslatableInterface;
 /**
  * @author Javier Eguiluz <javier.eguiluz@gmail.com>
  */
-final class FieldDto
+final class FieldDto implements GroupableDtoInterface
 {
     private ?string $fieldFqcn = null;
     private ?string $propertyName = null;
@@ -55,6 +56,8 @@ final class FieldDto
     private $uniqueId;
     private KeyValueStore $displayedOn;
     private array $htmlAttributes = [];
+    private ?GroupableDtoInterface $parent = null;
+    private array $children = [];
 
     public function __construct()
     {
@@ -495,5 +498,38 @@ final class FieldDto
         $this->htmlAttributes[$attribute] = $value;
 
         return $this;
+    }
+
+    public function getChildren(): array
+    {
+        return $this->children;
+    }
+
+    public function addChildren(array $children): void
+    {
+        $this->children = [
+            ...$this->children,
+            ...$children,
+        ];
+    }
+
+    public function getFields(): ?FieldCollection
+    {
+        return FieldCollection::new($this->children);
+    }
+
+    public function getFqcn(): string
+    {
+        return $this->parent->getFqcn() ?? '';
+    }
+
+    public function setParent(GroupableDtoInterface $parent): void
+    {
+        $this->parent = $parent;
+    }
+
+    public function getParent(): ?GroupableDtoInterface
+    {
+        return $this->parent;
     }
 }

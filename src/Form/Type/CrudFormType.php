@@ -5,7 +5,9 @@ namespace EasyCorp\Bundle\EasyAdminBundle\Form\Type;
 use ArrayObject;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\GroupableDtoInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
+use EasyCorp\Bundle\EasyAdminBundle\Form\DataTransformer\GroupTransformer;
 use EasyCorp\Bundle\EasyAdminBundle\Form\EventListener\FormLayoutSubscriber;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmTypeGuesser;
 use Symfony\Component\Form\AbstractType;
@@ -104,8 +106,12 @@ class CrudFormType extends AbstractType
                 $formFieldOptions['ea_form_tab'] = $currentFormTab;
             }
 
+            if ($fieldDto->getCustomOption(FormField::OPTION_GROUP) && $fieldDto instanceof GroupableDtoInterface) {
+                $formFieldOptions['entityDto'] = $fieldDto;
+            }
+
             $formField = $builder->getFormFactory()->createNamedBuilder($name, $formFieldType, null, $formFieldOptions);
-            $formField->setAttribute('ea_entity', $entityDto);
+            $formField->setAttribute('ea_entity', $entityDto->getParent() ?? $entityDto);
             $formField->setAttribute('ea_form_fieldset', $options['ea_form_fieldset'] ?? $currentFormFieldset);
             $formField->setAttribute('ea_form_tab', $options['ea_form_tab'] ?? $currentFormTab);
             $formField->setAttribute('ea_field', $fieldDto);

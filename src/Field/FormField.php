@@ -3,6 +3,7 @@
 namespace EasyCorp\Bundle\EasyAdminBundle\Field;
 
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\EaFormGroupType;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\EaFormRowType;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\Layout\EaFormColumnOpenType;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\Layout\EaFormFieldsetOpenType;
@@ -21,6 +22,7 @@ final class FormField implements FieldInterface
     public const OPTION_COLLAPSIBLE = 'collapsible';
     public const OPTION_COLLAPSED = 'collapsed';
     public const OPTION_ROW_BREAKPOINT = 'rowBreakPoint';
+    public const OPTION_GROUP = 'group';
     public const OPTION_TAB_ID = 'tabId';
     public const OPTION_TAB_IS_ACTIVE = 'tabIsActive';
     public const OPTION_TAB_ERROR_COUNT = 'tabErrorCount';
@@ -139,6 +141,27 @@ final class FormField implements FieldInterface
             ->setFormTypeOptions(['mapped' => false, 'required' => false])
             ->setCustomOption(self::OPTION_ICON, $icon)
             ->setValue(true);
+    }
+
+    public static function addGroup(string $name): self
+    {
+        $field = new self();
+
+        return $field
+            ->setFieldFqcn(__CLASS__)
+            ->hideOnIndex()
+            ->setProperty('ea_form_group_'.$name)
+            ->setFormType(EaFormGroupType::class)
+            ->addCssClass('field-form_group')
+            ->setCustomOption(self::OPTION_GROUP, true)
+            ->setValue(true);
+    }
+
+    public function addChildren(array $children): self
+    {
+        $this->dto->addChildren($children);
+
+        return $this;
     }
 
     public function setIcon(string $iconCssClass): self

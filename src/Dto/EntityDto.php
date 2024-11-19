@@ -17,7 +17,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 /**
  * @author Javier Eguiluz <javier.eguiluz@gmail.com>
  */
-final class EntityDto
+final class EntityDto implements GroupableDtoInterface
 {
     private bool $isAccessible = true;
     private string $fqcn;
@@ -137,7 +137,23 @@ final class EntityDto
 
     public function setFields(FieldCollection $fields): void
     {
+        foreach ($fields as $field) {
+            if ($field instanceof GroupableDtoInterface) {
+                $field->setParent($this);
+            }
+        }
+
         $this->fields = $fields;
+    }
+
+    public function setParent(GroupableDtoInterface $parent): void
+    {
+        throw new \LogicException('Not implemented.');
+    }
+
+    public function getParent(): ?GroupableDtoInterface
+    {
+        return null;
     }
 
     public function setActions(ActionCollection $actions): void

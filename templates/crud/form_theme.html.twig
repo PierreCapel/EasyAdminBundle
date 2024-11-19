@@ -881,3 +881,11 @@
         </button>
     </div>
 {% endblock %}
+
+{% block ea_form_group_row %}
+    <div>
+    {% for child in form %}
+        {{ form_row(child) }}
+    {% endfor %}
+    </div>
+{% endblock ea_form_group_row %}
